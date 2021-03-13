@@ -1,0 +1,17 @@
+kind: Service 
+apiVersion: v1
+metadata: 
+      name: desktop 
+      labels: 
+          app: dp
+spec: 
+     sessionAffinity: None 
+     externalTrafficPolicy: Local
+     type: NodePort 
+     selector:  
+         app: dp
+     ports: 
+     -    name: desktop 
+          protocol: TCP
+          port: 9999  
+          targetPort: 9999

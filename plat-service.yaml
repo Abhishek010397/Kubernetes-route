@@ -1,0 +1,23 @@
+apiiersion: v1
+kind: Service 
+metadata: 
+      name: plat 
+      labels: 
+         app: plat 
+         type: plat 
+spec: 
+    type: NodePort 
+    selector: 
+        app: plat 
+    sessionAffinity: None 
+    externalTrafficPolicy: Local 
+    ports: 
+    -    port: 80
+         targetPort: 6790 
+         nodePort: 31267
+         protocol: TCP 
+         name: http
+    -    port: 443
+         targetPort: 9000
+         protocol: TCP
+         name: lbhttp

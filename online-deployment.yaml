@@ -1,0 +1,73 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+      name: online 
+      labels: 
+          app: online 
+spec: 
+     replicas: 1 
+     selector: 
+         matchLabels: 
+               app: online 
+     template: 
+         metadata: 
+               labels: 
+                   app: online 
+               annotations: sidecar.istio.io/inject = "false" 
+         spec: 
+              serviceAccountName: online
+              imagePullSecrets: 
+              -    name: dockerhub 
+              initContainers: 
+              -   name: init-myservice 
+                  image: online
+                  imagePullPolicy: Always
+                  command: ["/etc/scripts/docker-entrypoint.sh"] 
+                  volumeMounts:
+                  -   name: plat-persistent 
+                      mountPath: /etc/persistent 
+                  -   name: plat-secret-keys 
+                      mountPath: /etc/persistent/keys 
+                  -   name: plat-secret-keys 
+                      mountPath: /etc/persistent/keys 
+                  -   name: plat-keys 
+                      mountPath: /etc/persistent/keys 
+     nodeSelector: 
+     affinity: 
+     tolerations: 
+     containers: 
+     -   name: online 
+         image: online 
+         imagePullPolicy: Always
+         env: 
+         -    name: TZ
+              value: 100
+              volumeMounts: 
+              -   name: online-config-volume 
+                  mountPath: /etc/nginx/conf.d 
+              -   name: plat-persistent 
+                  mountPath: /etc/persistent
+              -   name: plat-secret-keys 
+                  mountPath: /etc/persistent/keys 
+              -   name: plat-secret-keys 
+                  mountPath: /etc/persistent/keys 
+              ports: 
+              -    containerPort: 443 
+              -    containerPort: 80 
+                   name: http 
+     volumes: 
+     -   name: online-config-volume 
+         configMap: 
+              name: online-config 
+     -   name: plat-persistent 
+         persistentVolumeClaim: 
+              claimName: plat-persistent 
+     -   name: plat-secret-keys 
+         secret: 
+             secretName: mz-cert 
+     -   name: plat-secret-keys 
+         secret: 
+             secretname: cert 
+     -   name: plat-keys 
+         emptyDir: {} 
+

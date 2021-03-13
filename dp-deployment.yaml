@@ -1,0 +1,87 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+      name: wd 
+      labels: 
+          app: wd 
+spec: 
+    replicas: 1
+    selector: 
+        matchLabels: 
+              app: wd 
+    template: 
+        metadata: 
+              labels: 
+                  app: wd 
+              annotations: sidecar.istio.io/inject = "false" 
+        spec: 
+             serviceAccountName: desktop
+             imagePollSecrets: 
+             - name: dockerhub 
+             containers: 
+             - name: wd 
+               image: dp
+               imagePullPolicy: Always 
+               command: ["/opt/mz/entrvnoint/dockerr-entrvnoint.sh"]
+               volumeMounts: 
+               -   name: common-config-volume 
+                   mountPath: /etc/config/common 
+               -   name: pico-volume 
+                   mountPath: /etc/config/webdesktop 
+               -   name: wd-log4j-volume 
+                   mountPath: /etc/config/log4j 
+               -   name: plat-persistent 
+                   mountPath: /opt/mz/persistent 
+               -   name: TLS ENABLED 
+                   value: true
+               -   name: TLS_KEVSTORE_PASSWORD 
+                   valueFrom: 
+                       secretKeyRef: 
+                           key: tlsKeystorePassword 
+                           name: nv-secrets 
+               -   name: TLS_KEY_PASSWORD 
+                   valueFrom: 
+                       secretKeyRef: 
+                           key: tlsKeypassword 
+                           name: nv-secrets 
+               -   name: TLS_KEYSTORE 
+                   value: /opt/mz/persistent/keys/keystore.jks 
+               -   name: TIS_KEY_ALIAS 
+                   value: certificate 
+               ports: 
+               -   containerPort: 9090 
+               -   containerPort: 9999 
+                   name: http
+               -   containerPort: 8818
+                   name:  jmx-remote 
+               livenessProbe: 
+                  httpGet:
+                      path: /auth 
+                      port: http 
+                      scheme: HTTPS 
+               readinessProbe: 
+                   httpGet: 
+                       path: /auth 
+                       port: http 
+                       scheme: HTTPS 
+               resources: 
+    nodeSelector: 
+    affinity: 
+    tolerations: 
+    volumes: 
+    -   name: common-config-volume 
+        configMap: 
+            name: common-wd-config 
+    -  name: pico-volume 
+       configMap: 
+            name: wd-config 
+    -  name: wd-log4j-volume 
+       configMap: 
+            name: wd-log4j-config 
+    -  name: plat-persistent 
+       persisitentVolumeClaim:
+            claimName: platdorm-persistent
+    -  name: plat-secret-keys
+       secret:
+            secretName: mz-cert
+

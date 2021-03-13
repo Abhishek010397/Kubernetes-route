@@ -1,0 +1,177 @@
+apiVersion: apps/v1 
+kind: StatefulSet 
+metadata: 
+      name: plat 
+      labels: 
+          app: plat 
+          type: plat 
+spec: 
+    replicas: 2
+    serviceName: plat 
+    selector: 
+        matchLabels: 
+              app: plat 
+        template: 
+            metadata: 
+                  labels: 
+                      app: plat 
+                  annotations: 
+                       sidecar.istio.io/inject = "false" 
+                       prometheus.io/scrape = "true" 
+                       prometheus.io/port =  9900 
+                       prometheus.io/path = "/metrics" 
+            spec: 
+                 serviceAccountName: plat
+                 imagePullSecrets: 
+                 -    name: dockerhub 
+                 initContainers: 
+                 -   name: init 
+                     image: plat
+                     imagePullPolicy: Always
+                     command: ["/opt/m/entrypoint/docker-entrypoint-initcontainer.sh"]
+                     args: ["plat/db/type "] 
+                     env:
+                     -    name: DEBUG 
+                          value: "true" 
+                     -    name: TLS_ENABLED 
+                          value: "true"
+                     -    name: TLS_KEYSTORE_PASSWORD 
+                          valueFrom: 
+                              secretKeyRef: 
+                                  key: tlsKeystorePassword 
+                                  name: environment-secrets 
+                     -   name: TLS_KEY_PASSWORD 
+                         valueFrom: 
+                             secretKeyRef: 
+                                  key: tlsKeyPassword 
+                                  name: environment-secrets 
+                     -   name: TLS_KEYSTORE 
+                         value: /opt/online/persistent/keys/keystore.jks 
+                     -   name: TLS_KEY_ALIAS 
+                         value: /opt/online/persistent/keys 
+                     -   name: JDBC_USER
+                         valueFrom: 
+                             secretKeyRef: 
+                                  key: jdbcPassword 
+                                  name: environment-secrets 
+                     -   name: OWNER_PASSWORD 
+                         valueFrom: 
+                             secretKeyRef: 
+                                 key: ownerPassword 
+                                 name: environment-secrets 
+                     -   name: POSTGRESQL_HOST 
+                         value: /postgress/host 
+                     -   name: POSTGRESQL_PORT 
+                         value: /postgress/port 
+                     -   name: POSTGRESQL_DATABASE 
+                         value: /postgress/db 
+                     -   name: POSTGRESQL_ADMIN_USER 
+                         value: /postgress/adminUsername 
+                     -   name: POSTGRESQL_ADMIN_PASSWORD 
+                         valueFrom: 
+                             secretKeyRef: 
+                                  key: postgresqlPassword 
+                                  name: environment-secrets 
+                         volumeMounts: 
+                         -   name: plat-persistent 
+                             mountPath: /opt/mz/persistent 
+                         -   name: plat-secret-keys 
+                             mountPath: /opt/mz/persistent/keys 
+                         -   name: plat-secret-keys 
+                             mountPath: /opt/mz/persistent/keys 
+                         -   name: plat-keys 
+                             mountPath: /opt/mz/persistent/keys 
+                         -   name: plat
+                             image: plat
+                             imagePullPolicy: Always
+                             command: ["/opt/online/entrypoint/docker-entrypoint.sh"] 
+                             args: 
+                                 - e online.is.kubernetes=true
+                                 - e online.image.name=online
+                                 - e online.jdbc.type= postgresql
+                                 - e online.jdbc.url=jdbc:postgresql://xyz.domain.amazonaws.com:3306
+                             env:
+                             -    name: TZS
+                                  value: 13-06
+                             -    name: ONLINE_LICENSCE_KEY
+                                  value: axyzgh-ifgt
+                             -    name: DEBUG
+                                  value: "true"
+                             -    name: TLS_ENABLED
+                                  value: "true"
+                             -    name: TLS_KEYSTORE_PASSWORD 
+                                  valueFrom: 
+                                      secretKeyRef: 
+                                          key: tlsKeystorePassword 
+                                          name: environment-secrets 
+                             -   name: TLS_KEY_PASSWORD 
+                                 valueFrom: 
+                                     secretKeyRef: 
+                                          key: tlsKeyPassword 
+                                          name: environment-secrets 
+                             -   name: TLS_KEYSTORE 
+                                 value: /opt/mz/persistent/keys/keystore.jks 
+                             -   name: TLS_KEY_ALIAS 
+                                 value: tlskeyalias 
+                             -   name: JDBC_USER 
+                                 valueFrom: 
+                                     secretKeyRef: 
+                                         key: jdbcUser 
+                                         name: environment-secrets 
+                             -  name: JDBC_PASSWORD 
+                                valueFrom: 
+                                    secretKeyRef: 
+                                         key: jdbcPassword 
+                                         name: environment-secrets 
+                             -  name: OPERATOR_PASSWORD 
+                                valueFrom: 
+                                    secretKeyRef: 
+                                        key: operatorPassword 
+                                        name: environment-secrets 
+                                        ports: 
+                                        -    containerPort: 8080 
+                                             name: jmx-export 
+                                        -    containerPort: 8082 
+                                             name: jmx-remote 
+                                        -    containerPort: 6790 
+                                             name: rcp 
+                                        -    containerPort: 9000 
+                                             name: http 
+                                        livenessProbe: 
+                                           httpGet: 
+                                               path: /health/live 
+                                               port: http 
+                                               scheme: HTTPS 
+                                        readinessProbe: 
+                                            httpGet: 
+                                                path: /health/ready 
+                                                port: http 
+                                                scheme: HTTPS 
+                                        volumeMounts: 
+                                        -   name: common-config-volume 
+                                            mountPath: /etc/config/common
+                                        -   name: plat-persistent 
+                                            mountPath: /opt/persistent 
+                                        -   name: plat-secret-keys 
+                                            mountPath: /opt/mz/persistent/keys 
+                                        -   name: plat-secret-keys 
+                                            mountPath: /opt/mz/persistent/keys 
+                                        -   name: plat-keys 
+                                            mountPath: /opt/mz/persistent/keys 
+        nodeSelector: 
+        affinity: 
+        tolerations:
+        volumes:
+        -   name: plat-secret-keys 
+            secret: 
+                secretName: online-cert
+        -   name: plat-keys
+            emptyDir: {}
+        -   name: common-config-volume
+            configMap:
+                 name: common-config
+        -   name: plat-persistent
+            persistentVolumeClaim:
+                 claimName: plat-persistent  
+
+

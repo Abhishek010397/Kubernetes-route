@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Service 
+metadata: 
+      name: online 
+      labels: 
+          app: online 
+          type: online 
+spec: 
+     selector: 
+         app: online 
+     sessionAffinity: None 
+     type: NodePort 
+     externalTrafficPolicy: Local 
+     ports: 
+     -    port: 443 
+          targetPort: 443 
+          protocol: TCP 
+          nodePort: 443 
+          name: https 
+     -    port: 80
+          targetPort: 80
+          protocol: TCP 
+          nodePort: 80
+          name: http

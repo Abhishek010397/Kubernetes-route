@@ -1,0 +1,22 @@
+apiVersion: cert-manager-io/v1alpha2
+kind: Certificate
+metadata:
+      name: cert
+spec:
+     secretName: cert
+     dnsNames:
+     -    online.certmanager.issuer.domain
+     -    desktop.certmanager.issuer.domain
+     -    plat.certmanager.issuer.domain 
+     -    ingress.certmanager.issuer.domain
+     -    grafana.certmanager.issuer.domain
+     issuerRef:
+        kind: ClusterIssuer
+        name: selfsigned-issuer
+     commonName:
+     keystores:
+          jks:
+             create: true
+             passwordSecretRef:
+                  key: tlsKeystorePassword
+                  name: environment-secrets
