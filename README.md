@@ -26,13 +26,12 @@ Now, to use EFS as the persistent volume for applications deployed in Kubernetes
 
     I have also included HPA(Horizational Pod Autoscaler) in my project as we are not certain about our pods resource requirements and how those requirements might change depending on usage patterns, external dependencies, or other factors. HPA can automatically scale the number of Pods in your workload based on one or more metrics of the following types:-
 
-              Actual resource usage: when a given Pod's CPU or memory usage exceeds a threshold. This can be expressed as a raw value or as a percentage of the amount the Pod requests for that resource.
+        Actual resource usage: when a given Pod's CPU or memory usage exceeds a threshold. This can be expressed as a raw value or as a percentage of the amount the Pod requests for that resource.
 
-              Custom metrics: based on any metric reported by a Kubernetes object in a cluster, such as the rate of client requests per second or I/O writes per second.
+        Custom metrics: based on any metric reported by a Kubernetes object in a cluster, such as the rate of client requests per second or I/O writes per second.
+        This can be useful if your application is prone to network bottlenecks, rather than CPU or memory.
 
-              This can be useful if your application is prone to network bottlenecks, rather than CPU or memory.
-
-             External metrics: based on a metric from an application or service external to your cluster.
+        External metrics: based on a metric from an application or service external to your cluster.
 
     For example, your workload might need more CPU when ingesting a large number of requests from a pipeline such as Pub/Sub. You can create an external metric for the size of the queue, and configure HPA to automatically increase the number of Pods when the queue size reaches a given threshold, and to reduce the number of Pods when the queue size shrinks.
 
