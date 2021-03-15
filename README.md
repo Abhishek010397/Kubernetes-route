@@ -42,4 +42,4 @@ The official Documentation on this is provided by AWS.
 
 https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html
 
-![alt-text](https://github.com/Abhishek010397/Kubernetes-route/blob/master/Route.png)
+![alt-text](https://github.com/Abhishek010397/Kubernetes-route/blob/master/HPA.png)
