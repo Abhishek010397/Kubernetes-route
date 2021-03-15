@@ -18,7 +18,7 @@ Thereby, I have made use of Host-Based Routing Mechanism for Ingress where preci
 
 2. EFS
 
-Also in this project i have made use of EFS (AWS FileSystem) to store filesystem data as a replica for the default volume (network file system ) provided by         Kubernetes. The use of volumes is because of persistency as in kubernetes if any application is deployed with no persistent setup, the data produced or consumed by the application becomes ephermal and if the container crashes the kubelet will restart the container to maintain the desired state but this time the container will be launched with a clean state.
+   Also in this project i have made use of EFS (AWS FileSystem) to store filesystem data as a replica for the default volume (network file system ) provided by Kubernetes. The use of volumes is because of persistency as in kubernetes if any application is deployed with no persistent setup, the data produced or consumed by the application becomes ephermal and if the container crashes the kubelet will restart the container to maintain the desired state but this time the container will be launched with a clean state.
 
 Now, to use EFS as the persistent volume for applications deployed in Kubernetes I have made use of the EFS CSI Drivers (Container Storage Interface).
 
